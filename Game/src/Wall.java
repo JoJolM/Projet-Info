@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -15,9 +14,6 @@ public class Wall extends GameObject {
 
 
 	public void tick() {
-			x += spdX;
-			y += spdY;
-		
 	}
 
 

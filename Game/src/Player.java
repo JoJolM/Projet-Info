@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -40,6 +39,18 @@ public class Player extends GameObject{
 		
 		if(handler.isLeft()) spdX = -5;
 		else if (!handler.isRight()) spdX = 0;
+		
+		for(int i = 0; i < handler.object.size();i++){
+			GameObject temp = handler.object.get(i);
+			if(temp.getType() == Type.Lava) {
+				if(getBounds().intersects(temp.getBounds())){
+					spdX = (float) (spdX*0.7);
+					spdY = (float) (spdY*0.7);
+					game.hp -= 0.001;
+				}				
+			}
+			
+		}
 	
 
 	}
@@ -51,7 +62,7 @@ public class Player extends GameObject{
 		for(int i = 0; i < handler.object.size();i++){
 			GameObject temp = handler.object.get(i);
 			
-			if(temp.getType() == Type.Wall) {
+			if(temp.getType() == Type.Wall || temp.getType() == Type.WallB) {
 				if(getBounds().intersects(temp.getBounds())){
 					x += spdX *-1;
 					y += spdY *-1;
@@ -59,18 +70,19 @@ public class Player extends GameObject{
 			}
 			if(temp.getType() == Type.Enemy) {
 				if(getBounds().intersects(temp.getBounds())){
-					game.hp -= 20;
-					x += -20*((temp.x-x)/Math.abs(x-temp.x));
-					y += -20*((temp.y-y)/Math.abs(y-temp.y));		
+					game.hp -= 5;
+					x += -10*((temp.x-x)/(Math.abs(x-temp.x)+0.01));
+					y += -10*((temp.y-y)/(Math.abs(y-temp.y)+0.01));		
 				}
 			}
-			if(temp.getType() == Type.Well) {
+			if(temp.getType() == Type.SpellM) {
 				if(getBounds().intersects(temp.getBounds())){
-					game.hp = 200;
-					game.mp = 200;
-					handler.removeObject(temp);
+					game.hp -= 40;
+					x += -40*((temp.x-x)/(Math.abs(x-temp.x)+0.01));
+					y += -40*((temp.y-y)/(Math.abs(y-temp.y)+0.01));
 				}
 			}
+			
 		}
 		
 	}

@@ -11,6 +11,8 @@ public class Keyboard extends KeyAdapter{
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		
+		if(key == KeyEvent.VK_ESCAPE) Runtime.getRuntime().exit(0);
+		
 		for (int i = 0; i < handler.object.size(); i++) {
 			GameObject temp = handler.object.get(i);
 			

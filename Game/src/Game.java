@@ -1,5 +1,6 @@
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
@@ -19,8 +20,11 @@ public class Game extends Canvas implements Runnable{
 	private BufferedImage textures = null;
 	private BufferedImage floor = null;
 	
+	public boolean BossVaincu = false;
+	
 	public int hp = 200;
 	public int mp = 200;
+	public int score = 0;
 	
 	public Game() {
 		new GamePanel(1600,900,"geimu",this);
@@ -67,23 +71,20 @@ public class Game extends Canvas implements Runnable{
 		double ns = 1000000000 / framerate;
 		double delta = 0;
 		long timer = System.currentTimeMillis();
-		int frames = 0;
+
 		while(on) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
 			while(delta >=1) {
 				tick();
-				//updates++;
 				delta--;
 			}
 			render();
-			frames++;
+
 			
 			if(System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				frames = 0;
-				//updates = 0;
 			}
 		}
 		stop();
@@ -105,7 +106,7 @@ public class Game extends Canvas implements Runnable{
 	public void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null) {
-			this.createBufferStrategy(2); //Charge des trames en avances (3 pré chargées ici)
+			this.createBufferStrategy(4); //Charge des trames en avances (2 pré chargées ici)
 			return;
 		}
 		
@@ -125,6 +126,8 @@ public class Game extends Canvas implements Runnable{
 		
 		g2d.translate(camera.getX(), camera.getY());
 		
+		
+		// rendu du HUD
 		if (hp<0) {
 			g.setColor(Color.black);
 			g.fillRect(10, 10, 200, 20);
@@ -152,6 +155,62 @@ public class Game extends Canvas implements Runnable{
 		g.setColor(Color.gray);
 		g.drawRect(10, 30, 200, 20);
 		
+		
+		g.setColor(Color.white);
+		g.setFont (new Font("times new roman", Font.BOLD, 15) );
+		g.drawString("Score : " + score, 10, 65);
+		
+		
+		// Écrans de fin de jeu
+		if (hp <= 0){
+			g.setColor(Color.black);
+			g.fillRect(0, 0, 1600, 900);
+			g.setColor(Color.white);
+			g.setFont (new Font("arial", Font.BOLD, 50) );
+			g.drawString("Perdu !", 600, 400);
+			g.setFont (new Font("arial", Font.BOLD, 20) );
+			g.drawString("Vous ferez mieux la prochaine fois :) ", 600, 440);
+			g.drawString("Score : " + score, 600, 470);
+			g.drawString("Appuyez sur Échap pour quitter...", 600, 500);			
+		}
+		
+		if (BossVaincu == true){
+			if (score <= 250) {
+				g.setColor(Color.black);
+				g.fillRect(0, 0, 1600, 900);
+				g.setColor(Color.white);
+				g.setFont (new Font("arial", Font.BOLD, 50) );
+				g.drawString("Gagné !", 600, 400);
+				g.setFont (new Font("arial", Font.BOLD, 20) );
+				g.drawString("Fin pacifiste", 600, 440);
+				g.drawString("Score : " + score, 600, 470);
+				g.drawString("Appuyez sur Échap pour quitter...", 600, 500);	
+			}
+			if (score > 250) {
+				g.setColor(Color.black);
+				g.fillRect(0, 0, 1600, 900);
+				g.setColor(Color.white);
+				g.setFont (new Font("arial", Font.BOLD, 50) );
+				g.drawString("Gagné !", 600, 400);
+				g.setFont (new Font("arial", Font.BOLD, 20) );
+				g.drawString("Fin neutre", 600, 440);
+				g.drawString("Score : " + score, 600, 470);
+				g.drawString("Appuyez sur Échap pour quitter...", 600, 500);	
+			}
+			if (score > 500) {
+				g.setColor(Color.black);
+				g.fillRect(0, 0, 1600, 900);
+				g.setColor(Color.white);
+				g.setFont (new Font("arial", Font.BOLD, 50) );
+				g.drawString("Gagné !", 600, 400);
+				g.setFont (new Font("arial", Font.BOLD, 20) );
+				g.drawString("Fin chaostique", 600, 440);
+				g.drawString("Score : " + score, 600, 470);
+				g.drawString("Appuyez sur Échap pour quitter...", 600, 500);	
+			}
+					
+		}
+		
 		g.dispose();
 		bs.show();
 		
@@ -161,6 +220,7 @@ public class Game extends Canvas implements Runnable{
 		int w = image.getWidth();
 		int h = image.getHeight();
 		
+		//scan du fichier map
 		for (int xx = 0; xx < w; xx++) {
 			for(int yy= 0; yy<h; yy++) {
 				int pixel = image.getRGB(xx, yy);
@@ -168,14 +228,22 @@ public class Game extends Canvas implements Runnable{
 				int green = (pixel >> 8) & 0xff;
 				int blue = (pixel) & 0xff;
 				
+				// ajout des objets selon les couleurs de la map
 				if(red == 255 && green == 0 && blue == 0)
 					handler.addObject(new Wall(xx*32,yy*32, Type.Wall, txt));
+				if(red == 255 && green == 100 && blue == 0)
+					handler.addObject(new WallB(xx*32,yy*32, Type.WallB, handler, txt, this));
+				if(red == 255 && green == 0 && blue == 255)
+					handler.addObject(new Lava(xx*32,yy*32, Type.Lava, txt));
 				if(red == 0 && green == 0 && blue == 255)
 					handler.addObject(new Player(xx*32,yy*32, Type.Player, handler, this, txt));
 				if(red == 255 && green == 255 && blue == 0)
-					handler.addObject(new Enemy(xx*32,yy*32, Type.Enemy, handler, txt));
+					handler.addObject(new Dogoo(xx*32,yy*32, Type.Enemy, handler, txt, this));
+				if(red == 0 && green == 255 && blue == 0)
+					handler.addObject(new RedDogoo(xx*32,yy*32, Type.Enemy, handler, txt, this));
 				if(red == 255 && green == 255 && blue == 255)
-					handler.addObject(new Well(xx*32,yy*32, Type.Well, handler, txt));
+					handler.addObject(new Well(xx*32,yy*32, Type.Well, handler, txt, this));
+
 			}
 			
 		}
