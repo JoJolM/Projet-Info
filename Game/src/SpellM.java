@@ -7,12 +7,12 @@ public class SpellM extends GameObject {
 	private Handler handler;
 	private BufferedImage texture;
 	
-	public SpellM(int x, int y, Type type, Handler handler, int mx, int my, Textures txt) {
+	public SpellM(int x, int y, Type type, Handler handler, int sx, int sy, Textures txt) {
 		super(x, y, type, txt);
 		this.handler = handler;
 
-		spdX = 40;
-		spdY = 40;
+		spdX = (sx - x)/30;
+		spdY = (sy - y)/30;
 		
 		texture = txt.extract(6, 4, 27, 27);
 

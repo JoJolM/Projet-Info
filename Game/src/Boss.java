@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 public class Boss extends Enemy {
 
 	int actSpd = 0;
-	int hp = 2000;
+	int hp = 20000;
 	int anim = 0;
 	
 	public Boss(int x, int y, Type type, Handler handler, Textures txt, Game game) {
@@ -33,8 +33,20 @@ public class Boss extends Enemy {
 			if(temp.getType() == Type.Player) {
 				if(getRange().intersects(temp.getBounds())){
 					if(actSpd == 30) {
-						spdX = 3*((temp.x-x)/Math.abs(x-temp.x));
-						spdY = 3*((temp.y-y)/Math.abs(y-temp.y));
+						spdX = 30*((temp.x-x)/Math.abs(x-temp.x));
+						spdY = 30*((temp.y-y)/Math.abs(y-temp.y));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, 50, 0, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, 0, 50, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, -50, 0, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, 0, -50, txt));
+					
+					}
+					if(actSpd == 45) {
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, 50, 50, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, 50, -50, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, -50, 50, txt));
+						handler.addObject(new SpellM(temp.getX()+16, temp.getY()+24, Type.SpellM, handler, -50, -50, txt));
+
 					}
 				}
 			}
@@ -61,7 +73,7 @@ public class Boss extends Enemy {
 			
 			if(temp.getType() == Type.Spell) {
 				if(getBounds().intersects(temp.getBounds())){
-					hp -= 50;
+					hp -= 25;
 					spdX = 0;
 					spdY = 0;
 					handler.removeObject(temp);
@@ -70,7 +82,7 @@ public class Boss extends Enemy {
 			}
 			if(temp.getType() == Type.Hammer) {
 				if(getBounds().intersects(temp.getBounds())){
-					hp -= 100;
+					hp -= 50;
 					spdX = 0;
 					spdY = 0;
 					handler.removeObject(temp);
